@@ -11,6 +11,7 @@ const customers_1 = require("./routes/customers");
 const products_1 = require("./routes/products");
 const challans_1 = require("./routes/challans");
 const errorHandler_1 = require("./middleware/errorHandler");
+const keepAlive_1 = require("./lib/keepAlive");
 const app = (0, express_1.default)();
 const PORT = process.env.PORT || 3000;
 // ─── Middleware ───────────────────────────────────────────────────────────────
@@ -27,10 +28,10 @@ app.use('/auth', auth_1.authRouter);
 app.use('/customers', customers_1.customersRouter);
 app.use('/products', products_1.productsRouter);
 app.use('/challans', challans_1.challansRouter);
-// ─── Error Handler ────────────────────────────────────────────────────────────
 app.use(errorHandler_1.errorHandler);
 app.listen(PORT, () => {
     console.log(`🚀 Server running on http://localhost:${PORT}`);
+    (0, keepAlive_1.startKeepAlive)();
 });
 exports.default = app;
 //# sourceMappingURL=index.js.map

@@ -201,6 +201,7 @@ When a `ChallanItem` is created or updated while in `DRAFT`, the system captures
    - `JWT_SECRET`: A long, high-entropy secret string.
    - `PORT`: `5000` (or dynamically assigned by provider).
 5. Execute `npx prisma migrate deploy` to push schema migrations to production.
+6. **Automatic Keep-Alive (Zero Cold Starts)**: The backend includes a built-in self-ping mechanism (`lib/keepAlive.ts`) that detects Render's `RENDER_EXTERNAL_URL` environment variable and pings `GET /health` every 14 minutes. Furthermore, the React frontend automatically sends a background pre-warm request to `/health` on page load and every 10 minutes while open to ensure the container never spins down during active use.
 
 ### 3. Frontend (Vercel / Netlify)
 1. Connect repository and select the `/frontend` root directory.

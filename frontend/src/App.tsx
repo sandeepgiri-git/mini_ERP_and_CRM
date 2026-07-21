@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
 import { ToastProvider } from './contexts/ToastContext';
@@ -14,9 +15,22 @@ import ProductDetail from './pages/Products/ProductDetail';
 import ChallanList from './pages/Challans/ChallanList';
 import ChallanCreate from './pages/Challans/ChallanCreate';
 import ChallanDetail from './pages/Challans/ChallanDetail';
+import api from './api/client';
 import './App.css';
 
 function App() {
+  // Automatically wake up and keep Render backend awake
+  useEffect(() => {
+    const pingBackend = () => {
+      api.get('/health').catch(() => {});
+    };
+    // Ping immediately when portal loads (warms up backend during login or landing)
+    pingBackend();
+    // Ping every 10 minutes while tab remains open to prevent 15-minute sleep
+    const interval = setInterval(pingBackend, 10 * 60 * 1000);
+    return () => clearInterval(interval);
+  }, []);
+
   return (
     <BrowserRouter>
       <AuthProvider>
