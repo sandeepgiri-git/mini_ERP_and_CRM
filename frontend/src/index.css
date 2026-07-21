@@ -1016,7 +1016,7 @@ label {
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
   padding: var(--sp-10) var(--sp-8);
-  width: 380px;
+  width: 440px;
   max-width: calc(100vw - var(--sp-8));
 }
 
