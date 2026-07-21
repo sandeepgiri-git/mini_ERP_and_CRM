@@ -111,6 +111,9 @@ export default function ChallanDetail() {
               <button className="btn btn--success" disabled={isActioning} onClick={handleConfirm}>
                 ✓ Confirm
               </button>
+              <button className="btn btn--secondary" disabled={isActioning} onClick={() => navigate(`/challans/${challan.id}/edit`)}>
+                Edit Challan
+              </button>
               <button className="btn btn--danger" disabled={isActioning} onClick={handleCancel}>
                 Cancel Challan
               </button>
@@ -127,48 +130,50 @@ export default function ChallanDetail() {
             <div style={{ padding: '12px 16px', borderBottom: '1px solid var(--color-border)' }}>
               <div className="card__title">Line Items</div>
             </div>
-            <table>
-              <thead>
-                <tr>
-                  <th>Product</th>
-                  <th>SKU</th>
-                  <th className="num">Unit Price (₹)</th>
-                  <th className="num">Qty</th>
-                  <th className="num">Line Total (₹)</th>
-                  {challan.status === 'CONFIRMED' && <th className="num">Cur. Stock</th>}
-                </tr>
-              </thead>
-              <tbody>
-                {challan.items.map(item => (
-                  <tr key={item.id}>
-                    <td className="table-cell--primary">{item.productNameSnapshot}</td>
-                    <td className="table-cell--mono">{item.productSkuSnapshot}</td>
-                    <td className="num font-tabular">
-                      {parseFloat(item.unitPriceSnapshot).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
-                    </td>
-                    <td className="num font-tabular fw-500">{item.quantity.toLocaleString('en-IN')}</td>
-                    <td className="num font-tabular">
-                      {(item.quantity * parseFloat(item.unitPriceSnapshot)).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
-                    </td>
-                    {challan.status === 'CONFIRMED' && (
-                      <td className="num font-tabular text-muted">{item.product?.currentStock ?? '—'}</td>
-                    )}
+            <div className="table-scroll">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Product</th>
+                    <th>SKU</th>
+                    <th className="num">Unit Price (₹)</th>
+                    <th className="num">Qty</th>
+                    <th className="num">Line Total (₹)</th>
+                    {challan.status === 'CONFIRMED' && <th className="num">Cur. Stock</th>}
                   </tr>
-                ))}
-              </tbody>
-              <tfoot>
-                <tr style={{ borderTop: '2px solid var(--color-border)' }}>
-                  <td colSpan={challan.status === 'CONFIRMED' ? 3 : 3} className="fw-500 text-secondary" style={{ padding: '8px 12px', fontSize: '12px' }}>TOTAL</td>
-                  <td className="num font-tabular fw-600" style={{ padding: '8px 12px' }}>
-                    {challan.totalQuantity.toLocaleString('en-IN')}
-                  </td>
-                  <td className="num font-tabular fw-600" style={{ padding: '8px 12px' }}>
-                    {totalValue.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
-                  </td>
-                  {challan.status === 'CONFIRMED' && <td />}
-                </tr>
-              </tfoot>
-            </table>
+                </thead>
+                <tbody>
+                  {challan.items.map(item => (
+                    <tr key={item.id}>
+                      <td className="table-cell--primary">{item.productNameSnapshot}</td>
+                      <td className="table-cell--mono">{item.productSkuSnapshot}</td>
+                      <td className="num font-tabular">
+                        {parseFloat(item.unitPriceSnapshot).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                      </td>
+                      <td className="num font-tabular fw-500">{item.quantity.toLocaleString('en-IN')}</td>
+                      <td className="num font-tabular">
+                        {(item.quantity * parseFloat(item.unitPriceSnapshot)).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                      </td>
+                      {challan.status === 'CONFIRMED' && (
+                        <td className="num font-tabular text-muted">{item.product?.currentStock ?? '—'}</td>
+                      )}
+                    </tr>
+                  ))}
+                </tbody>
+                <tfoot>
+                  <tr style={{ borderTop: '2px solid var(--color-border)' }}>
+                    <td colSpan={challan.status === 'CONFIRMED' ? 3 : 3} className="fw-500 text-secondary" style={{ padding: '8px 12px', fontSize: '12px' }}>TOTAL</td>
+                    <td className="num font-tabular fw-600" style={{ padding: '8px 12px' }}>
+                      {challan.totalQuantity.toLocaleString('en-IN')}
+                    </td>
+                    <td className="num font-tabular fw-600" style={{ padding: '8px 12px' }}>
+                      {totalValue.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                    </td>
+                    {challan.status === 'CONFIRMED' && <td />}
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
           </div>
 
           {challan.status === 'DRAFT' && can(['ADMIN', 'SALES']) && (

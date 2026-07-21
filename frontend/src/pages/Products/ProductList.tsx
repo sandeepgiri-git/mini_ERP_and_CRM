@@ -108,49 +108,51 @@ export default function ProductList() {
             <div className="empty-state__title">No products found</div>
           </div>
         ) : (
-          <table>
-            <thead>
-              <tr>
-                <th>Name</th>
-                <th>SKU</th>
-                <th>Category</th>
-                <th>Location</th>
-                <th className="num">Unit Price (₹)</th>
-                <th className="num">Stock</th>
-                <th className="num">Min Alert</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {products.map(p => {
-                const isLow = p.currentStock <= p.minStockAlert;
-                return (
-                  <tr
-                    key={p.id}
-                    className={isLow ? 'low-stock' : ''}
-                    style={{ cursor: 'pointer' }}
-                    onClick={() => navigate(`/products/${p.id}`)}
-                  >
-                    <td className="table-cell--primary">{p.name}</td>
-                    <td className="table-cell--mono">{p.sku}</td>
-                    <td>{p.category}</td>
-                    <td>{p.location || <span className="text-muted">—</span>}</td>
-                    <td className="num font-tabular">
-                      {parseFloat(p.unitPrice).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
-                    </td>
-                    <td className={`num font-tabular fw-500${isLow ? ' text-danger' : ''}`}
-                      style={{ color: isLow ? 'var(--color-danger)' : undefined }}>
-                      {p.currentStock.toLocaleString('en-IN')}
-                    </td>
-                    <td className="num font-tabular text-muted">{p.minStockAlert}</td>
-                    <td>
-                      <LowStockBadge stock={p.currentStock} alert={p.minStockAlert} />
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+          <div className="table-scroll">
+            <table>
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>SKU</th>
+                  <th>Category</th>
+                  <th>Location</th>
+                  <th className="num">Unit Price (₹)</th>
+                  <th className="num">Stock</th>
+                  <th className="num">Min Alert</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {products.map(p => {
+                  const isLow = p.currentStock <= p.minStockAlert;
+                  return (
+                    <tr
+                      key={p.id}
+                      className={isLow ? 'low-stock' : ''}
+                      style={{ cursor: 'pointer' }}
+                      onClick={() => navigate(`/products/${p.id}`)}
+                    >
+                      <td className="table-cell--primary">{p.name}</td>
+                      <td className="table-cell--mono">{p.sku}</td>
+                      <td>{p.category}</td>
+                      <td>{p.location || <span className="text-muted">—</span>}</td>
+                      <td className="num font-tabular">
+                        {parseFloat(p.unitPrice).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                      </td>
+                      <td className={`num font-tabular fw-500${isLow ? ' text-danger' : ''}`}
+                        style={{ color: isLow ? 'var(--color-danger)' : undefined }}>
+                        {p.currentStock.toLocaleString('en-IN')}
+                      </td>
+                      <td className="num font-tabular text-muted">{p.minStockAlert}</td>
+                      <td>
+                        <LowStockBadge stock={p.currentStock} alert={p.minStockAlert} />
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
         )}
 
         <div className="pagination">

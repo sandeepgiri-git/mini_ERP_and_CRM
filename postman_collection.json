@@ -1,0 +1,590 @@
+{
+  "info": {
+    "_postman_id": "c3a1b5d4-e8f2-43a7-8902-1a2b3c4d5e6f",
+    "name": "Mini ERP + CRM Operations Portal API",
+    "description": "Comprehensive Postman collection for the Mini ERP & CRM Operations Portal API. Covers Authentication (RBAC), Customers CRM, Products & Inventory (with Stock Movement transactions), and Sales Challans (with stock-safe confirmation logic).",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:5000",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "1. Authentication",
+      "item": [
+        {
+          "name": "Login - Admin User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res && res.token) {",
+                  "    pm.collectionVariables.set('token', res.token);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@example.com\",\n  \"password\": \"admin123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "login"]
+            },
+            "description": "Authenticates user and returns a JWT token along with user details. Automatically saves token to collection variable."
+          }
+        },
+        {
+          "name": "Login - Sales Rep",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res && res.token) {",
+                  "    pm.collectionVariables.set('token', res.token);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"sales@example.com\",\n  \"password\": \"sales123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "login"]
+            }
+          }
+        },
+        {
+          "name": "Login - Warehouse Manager",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res && res.token) {",
+                  "    pm.collectionVariables.set('token', res.token);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"warehouse@example.com\",\n  \"password\": \"warehouse123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "login"]
+            }
+          }
+        },
+        {
+          "name": "Login - Accounts Manager",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res && res.token) {",
+                  "    pm.collectionVariables.set('token', res.token);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"accounts@example.com\",\n  \"password\": \"accounts123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "login"]
+            }
+          }
+        },
+        {
+          "name": "Get Current User (`/auth/me`)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/me",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "me"]
+            },
+            "description": "Returns current logged in user details based on Bearer token."
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Customers CRM",
+      "item": [
+        {
+          "name": "List Customers (`GET /customers`)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/customers?page=1&limit=20&search=&status=ACTIVE&customerType=",
+              "host": ["{{baseUrl}}"],
+              "path": ["customers"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "20" },
+                { "key": "search", "value": "" },
+                { "key": "status", "value": "ACTIVE" },
+                { "key": "customerType", "value": "" }
+              ]
+            },
+            "description": "Fetch paginated list of customers with optional search term, status filter (LEAD, ACTIVE, INACTIVE), and customerType filter (RETAIL, WHOLESALE, DISTRIBUTOR)."
+          }
+        },
+        {
+          "name": "Create Customer (`POST /customers`)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Rajesh Enterprises\",\n  \"mobile\": \"9876543210\",\n  \"email\": \"contact@rajeshenterprises.com\",\n  \"businessName\": \"Rajesh Trading Co\",\n  \"gstNumber\": \"27ABCDE1234F1Z5\",\n  \"customerType\": \"WHOLESALE\",\n  \"address\": \"Plot 45, MIDC Industrial Area, Mumbai\",\n  \"status\": \"ACTIVE\",\n  \"followUpDate\": \"2026-08-15\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/customers",
+              "host": ["{{baseUrl}}"],
+              "path": ["customers"]
+            },
+            "description": "Create a new customer (Admin / Sales roles)."
+          }
+        },
+        {
+          "name": "Get Customer Detail (`GET /customers/:id`)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/customers/customer-001",
+              "host": ["{{baseUrl}}"],
+              "path": ["customers", "customer-001"]
+            },
+            "description": "Fetch single customer profile with notes history."
+          }
+        },
+        {
+          "name": "Update Customer (`PUT /customers/:id`)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Apex Industries India Pvt Ltd\",\n  \"mobile\": \"9820011223\",\n  \"businessName\": \"Apex Industries\",\n  \"customerType\": \"DISTRIBUTOR\",\n  \"status\": \"ACTIVE\",\n  \"address\": \"Industrial Estate, Andheri East, Mumbai\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/customers/customer-001",
+              "host": ["{{baseUrl}}"],
+              "path": ["customers", "customer-001"]
+            }
+          }
+        },
+        {
+          "name": "Add Customer Note (`POST /customers/:id/notes`)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"note\": \"Spoke with purchase manager regarding bulk supply schedule for Q3. Next review next week.\",\n  \"followUpDate\": \"2026-08-01\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/customers/customer-001/notes",
+              "host": ["{{baseUrl}}"],
+              "path": ["customers", "customer-001", "notes"]
+            },
+            "description": "Add follow-up note to customer and optionally update followUpDate."
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Products & Inventory",
+      "item": [
+        {
+          "name": "List Products (`GET /products`)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/products?page=1&limit=20&search=&lowStock=false",
+              "host": ["{{baseUrl}}"],
+              "path": ["products"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "20" },
+                { "key": "search", "value": "" },
+                { "key": "lowStock", "value": "false" }
+              ]
+            },
+            "description": "List products with search by name/SKU/category, and option to filter only products at or below minStockAlert."
+          }
+        },
+        {
+          "name": "Create Product (`POST /products`)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"High-Torque Electric Motor 5HP\",\n  \"sku\": \"MTR-5HP-001\",\n  \"category\": \"Motors & Pumps\",\n  \"unitPrice\": \"18500.00\",\n  \"currentStock\": 50,\n  \"minStockAlert\": 10,\n  \"location\": \"Rack D-14\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/products",
+              "host": ["{{baseUrl}}"],
+              "path": ["products"]
+            },
+            "description": "Create a new product (Admin / Warehouse roles)."
+          }
+        },
+        {
+          "name": "Get Product Detail (`GET /products/:id`)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/products/product-001",
+              "host": ["{{baseUrl}}"],
+              "path": ["products", "product-001"]
+            },
+            "description": "Fetch product detail including recent stock movement logs."
+          }
+        },
+        {
+          "name": "Update Product (`PUT /products/:id`)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Industrial Valve 2-Inch Brass\",\n  \"unitPrice\": \"1350.00\",\n  \"minStockAlert\": 30,\n  \"location\": \"Rack A-12\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/products/product-001",
+              "host": ["{{baseUrl}}"],
+              "path": ["products", "product-001"]
+            }
+          }
+        },
+        {
+          "name": "Manual Stock Adjustment (`POST /products/:id/stock-movements`)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"quantityChanged\": 25,\n  \"movementType\": \"IN\",\n  \"reason\": \"New factory consignment arrived via PO #8890\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/products/product-001/stock-movements",
+              "host": ["{{baseUrl}}"],
+              "path": ["products", "product-001", "stock-movements"]
+            },
+            "description": "Adjust stock (IN or OUT) inside a database transaction. Prevents OUT adjustments that would drop stock below zero (returns 409 conflict)."
+          }
+        },
+        {
+          "name": "Get Stock Movement Log (`GET /products/:id/stock-movements`)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/products/product-001/stock-movements?page=1&limit=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["products", "product-001", "stock-movements"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "20" }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Sales Challans",
+      "item": [
+        {
+          "name": "List Challans (`GET /challans`)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/challans?page=1&limit=20&status=&search=",
+              "host": ["{{baseUrl}}"],
+              "path": ["challans"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "20" },
+                { "key": "status", "value": "" },
+                { "key": "search", "value": "" }
+              ]
+            },
+            "description": "List challans with optional status filter (DRAFT, CONFIRMED, CANCELLED) and search by challan number or customer name."
+          }
+        },
+        {
+          "name": "Create Draft Challan (`POST /challans`)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customerId\": \"customer-001\",\n  \"status\": \"DRAFT\",\n  \"items\": [\n    { \"productId\": \"product-001\", \"quantity\": 10 },\n    { \"productId\": \"product-002\", \"quantity\": 5 }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/challans",
+              "host": ["{{baseUrl}}"],
+              "path": ["challans"]
+            },
+            "description": "Creates a challan with auto-generated sequence number (CH-YYYY-XXXX). Captures snapshot of product name, SKU, and unit price at creation time. DRAFT challans do not deduct stock."
+          }
+        },
+        {
+          "name": "Get Challan Detail (`GET /challans/:id`)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/challans/challan-001",
+              "host": ["{{baseUrl}}"],
+              "path": ["challans", "challan-001"]
+            }
+          }
+        },
+        {
+          "name": "Update Draft Challan (`PUT /challans/:id`)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customerId\": \"customer-001\",\n  \"items\": [\n    { \"productId\": \"product-001\", \"quantity\": 15 },\n    { \"productId\": \"product-002\", \"quantity\": 8 }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/challans/challan-001",
+              "host": ["{{baseUrl}}"],
+              "path": ["challans", "challan-001"]
+            },
+            "description": "Updates line items or customer of a DRAFT challan. Only allowed while status is DRAFT."
+          }
+        },
+        {
+          "name": "Confirm Challan (`POST /challans/:id/confirm`)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/challans/challan-001/confirm",
+              "host": ["{{baseUrl}}"],
+              "path": ["challans", "challan-001", "confirm"]
+            },
+            "description": "Atomic stock-safe confirmation. Checks stock for all line items inside a database transaction. If sufficient, decrements product stock, logs StockMovement (OUT) for each item, and sets status to CONFIRMED. If stock is insufficient, rolls back and returns 409 conflict with detailed shortage message."
+          }
+        },
+        {
+          "name": "Cancel Challan (`POST /challans/:id/cancel`)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/challans/challan-001/cancel",
+              "host": ["{{baseUrl}}"],
+              "path": ["challans", "challan-001", "cancel"]
+            },
+            "description": "Cancels a DRAFT or CONFIRMED challan. If CONFIRMED, reverses stock deduction by incrementing current stock and recording StockMovement (IN)."
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 
@@ -49,7 +49,12 @@ const navItems: NavItem[] = [
   { label: 'Challans', path: '/challans', icon: icons.fileText },
 ];
 
-export default function Sidebar() {
+interface SidebarProps {
+  isOpen?: boolean;
+  onClose?: () => void;
+}
+
+export default function Sidebar({ isOpen, onClose }: SidebarProps) {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, logout } = useAuth();
@@ -63,11 +68,17 @@ export default function Sidebar() {
 
   const handleLogout = () => {
     logout();
+    onClose?.();
     navigate('/login');
   };
 
+  const handleNavClick = (path: string) => {
+    navigate(path);
+    onClose?.();
+  };
+
   return (
-    <aside className="sidebar">
+    <aside className={`sidebar${isOpen ? ' open' : ''}`}>
       {/* Brand */}
       <div className="sidebar__brand">
         <div className="sidebar__brand-icon">E</div>
@@ -86,7 +97,7 @@ export default function Sidebar() {
             <button
               key={item.path}
               className={`sidebar__nav-link${isActive ? ' active' : ''}`}
-              onClick={() => navigate(item.path)}
+              onClick={() => handleNavClick(item.path)}
             >
               <span className="sidebar__nav-icon">{item.icon}</span>
               {item.label}

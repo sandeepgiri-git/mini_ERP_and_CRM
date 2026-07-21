@@ -51,13 +51,13 @@ export default function Dashboard() {
 
         setStats({
           totalCustomers: custRes.data.total,
-          activeCustomers: custActive[0].data.total,
-          leadsCount: custLead[0].data.total,
+          activeCustomers: custActive.data.total,
+          leadsCount: custLead.data.total,
           totalProducts: prodRes.data.total,
           lowStockCount: lowStock.length,
           totalChallans: challanRes.data.total,
-          draftChallans: challanDraft[0].data.total,
-          confirmedChallans: challanConfirmed[0].data.total,
+          draftChallans: challanDraft.data.total,
+          confirmedChallans: challanConfirmed.data.total,
         });
       } catch {
         // silently fail stats

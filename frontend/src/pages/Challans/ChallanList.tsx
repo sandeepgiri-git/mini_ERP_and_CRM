@@ -111,43 +111,45 @@ export default function ChallanList() {
             <div className="empty-state__title">No challans found</div>
           </div>
         ) : (
-          <table>
-            <thead>
-              <tr>
-                <th>Challan #</th>
-                <th>Customer</th>
-                <th>Status</th>
-                <th className="num">Items</th>
-                <th className="num">Total Qty</th>
-                <th>Created By</th>
-                <th>Date</th>
-              </tr>
-            </thead>
-            <tbody>
-              {challans.map(c => (
-                <tr
-                  key={c.id}
-                  style={{ cursor: 'pointer' }}
-                  onClick={() => navigate(`/challans/${c.id}`)}
-                >
-                  <td className="table-cell--mono fw-500">{c.challanNumber}</td>
-                  <td className="table-cell--primary">
-                    {c.customer.name}
-                    {c.customer.businessName && (
-                      <div className="text-xs text-muted">{c.customer.businessName}</div>
-                    )}
-                  </td>
-                  <td>
-                    <span className={`badge badge--${c.status.toLowerCase()}`}>{c.status}</span>
-                  </td>
-                  <td className="num font-tabular">{c._count.items}</td>
-                  <td className="num font-tabular">{c.totalQuantity.toLocaleString('en-IN')}</td>
-                  <td className="text-secondary text-sm">{c.createdBy.name}</td>
-                  <td className="text-muted text-xs">{new Date(c.createdAt).toLocaleDateString('en-IN')}</td>
+          <div className="table-scroll">
+            <table>
+              <thead>
+                <tr>
+                  <th>Challan #</th>
+                  <th>Customer</th>
+                  <th>Status</th>
+                  <th className="num">Items</th>
+                  <th className="num">Total Qty</th>
+                  <th>Created By</th>
+                  <th>Date</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {challans.map(c => (
+                  <tr
+                    key={c.id}
+                    style={{ cursor: 'pointer' }}
+                    onClick={() => navigate(`/challans/${c.id}`)}
+                  >
+                    <td className="table-cell--mono fw-500">{c.challanNumber}</td>
+                    <td className="table-cell--primary">
+                      {c.customer.name}
+                      {c.customer.businessName && (
+                        <div className="text-xs text-muted">{c.customer.businessName}</div>
+                      )}
+                    </td>
+                    <td>
+                      <span className={`badge badge--${c.status.toLowerCase()}`}>{c.status}</span>
+                    </td>
+                    <td className="num font-tabular">{c._count.items}</td>
+                    <td className="num font-tabular">{c.totalQuantity.toLocaleString('en-IN')}</td>
+                    <td className="text-secondary text-sm">{c.createdBy.name}</td>
+                    <td className="text-muted text-xs">{new Date(c.createdAt).toLocaleDateString('en-IN')}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
 
         <div className="pagination">

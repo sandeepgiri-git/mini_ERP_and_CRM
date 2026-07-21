@@ -1,5 +1,5 @@
-import { useState, useEffect, useRef, FormEvent } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect, useRef, type FormEvent } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import api from '../../api/client';
 import { useToast } from '../../contexts/ToastContext';
 
@@ -15,6 +15,8 @@ const CloseIcon = () => (
 
 export default function ChallanCreate() {
   const navigate = useNavigate();
+  const { id } = useParams<{ id?: string }>();
+  const isEdit = Boolean(id);
   const { showToast } = useToast();
 
   // Customer picker
@@ -33,6 +35,44 @@ export default function ChallanCreate() {
   // Line items
   const [items, setItems] = useState<LineItem[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isFetching, setIsFetching] = useState(isEdit);
+
+  useEffect(() => {
+    if (!id) return;
+    const fetchChallan = async () => {
+      try {
+        const res = await api.get(`/challans/${id}`);
+        const data = res.data;
+        if (data.status !== 'DRAFT') {
+          showToast('Only DRAFT challans can be edited.', 'error');
+          navigate(`/challans/${id}`);
+          return;
+        }
+        setSelectedCustomer(data.customer);
+        setItems(data.items.map((i: {
+          productId: string;
+          productNameSnapshot: string;
+          productSkuSnapshot: string;
+          unitPriceSnapshot: string;
+          product?: { currentStock?: number };
+          quantity: number;
+        }) => ({
+          productId: i.productId,
+          name: i.productNameSnapshot,
+          sku: i.productSkuSnapshot,
+          unitPrice: parseFloat(i.unitPriceSnapshot),
+          currentStock: i.product?.currentStock ?? 0,
+          quantity: i.quantity,
+        })));
+      } catch {
+        showToast('Failed to load challan.', 'error');
+        navigate('/challans');
+      } finally {
+        setIsFetching(false);
+      }
+    };
+    fetchChallan();
+  }, [id, navigate, showToast]);
 
   // Customer search
   useEffect(() => {
@@ -106,32 +146,50 @@ export default function ChallanCreate() {
 
     setIsLoading(true);
     try {
-      const res = await api.post('/challans', {
-        customerId: selectedCustomer.id,
-        items: items.map(i => ({ productId: i.productId, quantity: i.quantity })),
-        status: saveAs,
-      });
-      showToast(`Challan ${saveAs === 'DRAFT' ? 'saved as draft' : 'confirmed'}.`, 'success');
-      navigate(`/challans/${res.data.id}`);
+      if (isEdit && id) {
+        await api.put(`/challans/${id}`, {
+          customerId: selectedCustomer.id,
+          items: items.map(i => ({ productId: i.productId, quantity: i.quantity })),
+        });
+        if (saveAs === 'CONFIRMED') {
+          await api.post(`/challans/${id}/confirm`);
+          showToast('Challan updated and confirmed.', 'success');
+        } else {
+          showToast('Draft challan updated.', 'success');
+        }
+        navigate(`/challans/${id}`);
+      } else {
+        const res = await api.post('/challans', {
+          customerId: selectedCustomer.id,
+          items: items.map(i => ({ productId: i.productId, quantity: i.quantity })),
+          status: saveAs,
+        });
+        showToast(`Challan ${saveAs === 'DRAFT' ? 'saved as draft' : 'confirmed'}.`, 'success');
+        navigate(`/challans/${res.data.id}`);
+      }
     } catch (err: unknown) {
       const msg = (err as { response?: { data?: { error?: { message?: string } } } })
-        ?.response?.data?.error?.message ?? 'Failed to create challan.';
+        ?.response?.data?.error?.message ?? `Failed to ${isEdit ? 'update' : 'create'} challan.`;
       showToast(msg, 'error');
     } finally {
       setIsLoading(false);
     }
   };
 
+  if (isFetching) {
+    return <div className="loading-overlay"><span className="loading-spinner"/> Loading challan…</div>;
+  }
+
   return (
     <div>
       <div className="page-header">
         <div className="page-header__left">
-          <h1 className="page-title">New Challan</h1>
+          <h1 className="page-title">{isEdit ? 'Edit Draft Challan' : 'New Challan'}</h1>
         </div>
-        <button className="btn btn--ghost" onClick={() => navigate('/challans')}>← Back</button>
+        <button className="btn btn--ghost" onClick={() => navigate(isEdit && id ? `/challans/${id}` : '/challans')}>← Back</button>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 280px', gap: '20px', alignItems: 'start' }}>
+      <div className="challan-create-layout">
         {/* Main form */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           {/* Customer picker */}
@@ -207,50 +265,52 @@ export default function ChallanCreate() {
                 <div className="empty-state__desc">Search above to add products.</div>
               </div>
             ) : (
-              <table className="line-items-table">
-                <thead>
-                  <tr>
-                    <th>Product</th>
-                    <th>SKU</th>
-                    <th className="num">Unit Price</th>
-                    <th className="num">Available</th>
-                    <th className="num">Qty</th>
-                    <th></th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {items.map(item => {
-                    const overQty = item.quantity > item.currentStock;
-                    return (
-                      <tr key={item.productId}>
-                        <td className="fw-500">{item.name}</td>
-                        <td className="table-cell--mono">{item.sku}</td>
-                        <td className="num font-tabular">₹{item.unitPrice.toFixed(2)}</td>
-                        <td className={`num font-tabular${item.currentStock === 0 ? ' text-danger' : ''}`}
-                          style={{ color: item.currentStock === 0 ? 'var(--color-danger)' : undefined }}>
-                          {item.currentStock}
-                        </td>
-                        <td className="num" style={{ width: '80px' }}>
-                          <input
-                            type="number"
-                            min="1"
-                            value={item.quantity}
-                            onChange={e => updateQty(item.productId, parseInt(e.target.value, 10) || 1)}
-                            className={`form-input${overQty ? ' error' : ''}`}
-                            style={{ width: '70px', textAlign: 'right' }}
-                          />
-                          {overQty && <div className="form-error" style={{ fontSize: '10px' }}>Over stock</div>}
-                        </td>
-                        <td>
-                          <button className="remove-btn" onClick={() => removeItem(item.productId)}>
-                            <CloseIcon />
-                          </button>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
+              <div className="table-scroll">
+                <table className="line-items-table">
+                  <thead>
+                    <tr>
+                      <th>Product</th>
+                      <th>SKU</th>
+                      <th className="num">Unit Price</th>
+                      <th className="num">Available</th>
+                      <th className="num">Qty</th>
+                      <th></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {items.map(item => {
+                      const overQty = item.quantity > item.currentStock;
+                      return (
+                        <tr key={item.productId}>
+                          <td className="fw-500">{item.name}</td>
+                          <td className="table-cell--mono">{item.sku}</td>
+                          <td className="num font-tabular">₹{item.unitPrice.toFixed(2)}</td>
+                          <td className={`num font-tabular${item.currentStock === 0 ? ' text-danger' : ''}`}
+                            style={{ color: item.currentStock === 0 ? 'var(--color-danger)' : undefined }}>
+                            {item.currentStock}
+                          </td>
+                          <td className="num" style={{ width: '80px' }}>
+                            <input
+                              type="number"
+                              min="1"
+                              value={item.quantity}
+                              onChange={e => updateQty(item.productId, parseInt(e.target.value, 10) || 1)}
+                              className={`form-input${overQty ? ' error' : ''}`}
+                              style={{ width: '70px', textAlign: 'right' }}
+                            />
+                            {overQty && <div className="form-error" style={{ fontSize: '10px' }}>Over stock</div>}
+                          </td>
+                          <td>
+                            <button className="remove-btn" onClick={() => removeItem(item.productId)}>
+                              <CloseIcon />
+                            </button>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
             )}
           </div>
         </div>
@@ -279,16 +339,16 @@ export default function ChallanCreate() {
               disabled={isLoading || items.length === 0 || !selectedCustomer}
               onClick={e => handleSubmit(e as FormEvent, 'CONFIRMED')}
             >
-              Confirm Challan
+              {isEdit ? 'Update & Confirm' : 'Confirm Challan'}
             </button>
             <button
               className="btn btn--secondary w-full"
               disabled={isLoading || items.length === 0 || !selectedCustomer}
               onClick={e => handleSubmit(e as FormEvent, 'DRAFT')}
             >
-              Save as Draft
+              {isEdit ? 'Update Draft' : 'Save as Draft'}
             </button>
-            <button className="btn btn--ghost w-full" onClick={() => navigate('/challans')}>
+            <button className="btn btn--ghost w-full" onClick={() => navigate(isEdit && id ? `/challans/${id}` : '/challans')}>
               Cancel
             </button>
           </div>

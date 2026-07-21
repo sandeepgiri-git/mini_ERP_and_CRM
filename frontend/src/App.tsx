@@ -72,6 +72,11 @@ function App() {
                 </ProtectedRoute>
               } />
               <Route path="challans/:id" element={<ChallanDetail />} />
+              <Route path="challans/:id/edit" element={
+                <ProtectedRoute roles={['ADMIN', 'SALES']}>
+                  <ChallanCreate />
+                </ProtectedRoute>
+              } />
             </Route>
 
             {/* Catch-all */}

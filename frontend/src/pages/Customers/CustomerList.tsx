@@ -138,42 +138,44 @@ export default function CustomerList() {
             <div className="empty-state__desc">Try adjusting your search or filters.</div>
           </div>
         ) : (
-          <table>
-            <thead>
-              <tr>
-                <th>Name</th>
-                <th>Mobile</th>
-                <th>Business</th>
-                <th>Type</th>
-                <th>Status</th>
-                <th>Follow-up</th>
-                <th>Last Updated</th>
-              </tr>
-            </thead>
-            <tbody>
-              {customers.map(c => (
-                <tr
-                  key={c.id}
-                  style={{ cursor: 'pointer' }}
-                  onClick={() => navigate(`/customers/${c.id}`)}
-                >
-                  <td className="table-cell--primary">{c.name}</td>
-                  <td className="table-cell--mono">{c.mobile}</td>
-                  <td>{c.businessName || <span className="text-muted">—</span>}</td>
-                  <td><TypeBadge type={c.customerType} /></td>
-                  <td><StatusBadge status={c.status} /></td>
-                  <td>
-                    {c.followUpDate
-                      ? new Date(c.followUpDate).toLocaleDateString('en-IN')
-                      : <span className="text-muted">—</span>}
-                  </td>
-                  <td className="text-muted text-xs">
-                    {new Date(c.updatedAt).toLocaleDateString('en-IN')}
-                  </td>
+          <div className="table-scroll">
+            <table>
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Mobile</th>
+                  <th>Business</th>
+                  <th>Type</th>
+                  <th>Status</th>
+                  <th>Follow-up</th>
+                  <th>Last Updated</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {customers.map(c => (
+                  <tr
+                    key={c.id}
+                    style={{ cursor: 'pointer' }}
+                    onClick={() => navigate(`/customers/${c.id}`)}
+                  >
+                    <td className="table-cell--primary">{c.name}</td>
+                    <td className="table-cell--mono">{c.mobile}</td>
+                    <td>{c.businessName || <span className="text-muted">—</span>}</td>
+                    <td><TypeBadge type={c.customerType} /></td>
+                    <td><StatusBadge status={c.status} /></td>
+                    <td>
+                      {c.followUpDate
+                        ? new Date(c.followUpDate).toLocaleDateString('en-IN')
+                        : <span className="text-muted">—</span>}
+                    </td>
+                    <td className="text-muted text-xs">
+                      {new Date(c.updatedAt).toLocaleDateString('en-IN')}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
 
         <div className="pagination">

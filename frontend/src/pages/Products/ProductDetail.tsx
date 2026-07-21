@@ -1,4 +1,4 @@
-import { useState, useEffect, FormEvent } from 'react';
+import { useState, useEffect, type FormEvent } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import api from '../../api/client';
 import { useAuth } from '../../contexts/AuthContext';
@@ -185,36 +185,38 @@ export default function ProductDetail() {
               <div className="empty-state__title">No movements yet</div>
             </div>
           ) : (
-            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-              <thead>
-                <tr>
-                  <th style={{ padding: '8px 0', textAlign: 'left', fontSize: '11px', fontWeight: 600, color: 'var(--color-text-secondary)', textTransform: 'uppercase', letterSpacing: '0.04em', borderBottom: '1px solid var(--color-border)' }}>Date</th>
-                  <th style={{ padding: '8px 0', textAlign: 'left', fontSize: '11px', fontWeight: 600, color: 'var(--color-text-secondary)', textTransform: 'uppercase', letterSpacing: '0.04em', borderBottom: '1px solid var(--color-border)' }}>Type</th>
-                  <th style={{ padding: '8px 0', textAlign: 'right', fontSize: '11px', fontWeight: 600, color: 'var(--color-text-secondary)', textTransform: 'uppercase', letterSpacing: '0.04em', borderBottom: '1px solid var(--color-border)' }}>Qty</th>
-                  <th style={{ padding: '8px 0', fontSize: '11px', fontWeight: 600, color: 'var(--color-text-secondary)', textTransform: 'uppercase', letterSpacing: '0.04em', borderBottom: '1px solid var(--color-border)' }}>Reason</th>
-                  <th style={{ padding: '8px 0', fontSize: '11px', fontWeight: 600, color: 'var(--color-text-secondary)', textTransform: 'uppercase', letterSpacing: '0.04em', borderBottom: '1px solid var(--color-border)' }}>By</th>
-                </tr>
-              </thead>
-              <tbody>
-                {product.stockMovements.map(m => (
-                  <tr key={m.id} style={{ borderBottom: '1px solid var(--color-border)' }}>
-                    <td style={{ padding: '8px 0', fontSize: '12px', color: 'var(--color-text-muted)' }}>
-                      {new Date(m.createdAt).toLocaleDateString('en-IN')}
-                    </td>
-                    <td style={{ padding: '8px 0' }}>
-                      <span className={`badge badge--${m.movementType === 'IN' ? 'active' : 'cancelled'}`}>
-                        {m.movementType}
-                      </span>
-                    </td>
-                    <td style={{ padding: '8px 0', textAlign: 'right', fontVariantNumeric: 'tabular-nums', fontWeight: 500, color: m.movementType === 'IN' ? 'var(--color-success)' : 'var(--color-danger)' }}>
-                      {m.movementType === 'IN' ? '+' : '−'}{m.quantityChanged}
-                    </td>
-                    <td style={{ padding: '8px 0', fontSize: '12px' }}>{m.reason}</td>
-                    <td style={{ padding: '8px 0', fontSize: '12px', color: 'var(--color-text-secondary)' }}>{m.createdBy.name}</td>
+            <div className="table-scroll">
+              <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                <thead>
+                  <tr>
+                    <th style={{ padding: '8px 0', textAlign: 'left', fontSize: '11px', fontWeight: 600, color: 'var(--color-text-secondary)', textTransform: 'uppercase', letterSpacing: '0.04em', borderBottom: '1px solid var(--color-border)' }}>Date</th>
+                    <th style={{ padding: '8px 0', textAlign: 'left', fontSize: '11px', fontWeight: 600, color: 'var(--color-text-secondary)', textTransform: 'uppercase', letterSpacing: '0.04em', borderBottom: '1px solid var(--color-border)' }}>Type</th>
+                    <th style={{ padding: '8px 0', textAlign: 'right', fontSize: '11px', fontWeight: 600, color: 'var(--color-text-secondary)', textTransform: 'uppercase', letterSpacing: '0.04em', borderBottom: '1px solid var(--color-border)' }}>Qty</th>
+                    <th style={{ padding: '8px 0', fontSize: '11px', fontWeight: 600, color: 'var(--color-text-secondary)', textTransform: 'uppercase', letterSpacing: '0.04em', borderBottom: '1px solid var(--color-border)' }}>Reason</th>
+                    <th style={{ padding: '8px 0', fontSize: '11px', fontWeight: 600, color: 'var(--color-text-secondary)', textTransform: 'uppercase', letterSpacing: '0.04em', borderBottom: '1px solid var(--color-border)' }}>By</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {product.stockMovements.map(m => (
+                    <tr key={m.id} style={{ borderBottom: '1px solid var(--color-border)' }}>
+                      <td style={{ padding: '8px 0', fontSize: '12px', color: 'var(--color-text-muted)' }}>
+                        {new Date(m.createdAt).toLocaleDateString('en-IN')}
+                      </td>
+                      <td style={{ padding: '8px 0' }}>
+                        <span className={`badge badge--${m.movementType === 'IN' ? 'active' : 'cancelled'}`}>
+                          {m.movementType}
+                        </span>
+                      </td>
+                      <td style={{ padding: '8px 0', textAlign: 'right', fontVariantNumeric: 'tabular-nums', fontWeight: 500, color: m.movementType === 'IN' ? 'var(--color-success)' : 'var(--color-danger)' }}>
+                        {m.movementType === 'IN' ? '+' : '−'}{m.quantityChanged}
+                      </td>
+                      <td style={{ padding: '8px 0', fontSize: '12px' }}>{m.reason}</td>
+                      <td style={{ padding: '8px 0', fontSize: '12px', color: 'var(--color-text-secondary)' }}>{m.createdBy.name}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           )}
         </div>
       </div>
