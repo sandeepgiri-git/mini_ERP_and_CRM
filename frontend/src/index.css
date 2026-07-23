@@ -1125,4 +1125,7 @@ label {
   .stat-grid { grid-template-columns: 1fr 1fr; }
   .form-actions { flex-direction: column; align-items: stretch; }
   .form-actions .btn { width: 100%; justify-content: center; }
+  
+  .login-page { padding: var(--sp-4); }
+  .login-card { padding: var(--sp-6) var(--sp-4); width: 100%; border-radius: var(--radius-md); }
 }

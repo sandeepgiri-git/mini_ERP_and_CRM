@@ -125,9 +125,9 @@ export default function Login() {
                   <span className={`badge badge--${user.role.toLowerCase()}`} style={{ fontSize: '10px', minWidth: '76px', textAlign: 'center', padding: '2px 6px' }}>
                     {user.role}
                   </span>
-                  <div>
-                    <div className="text-xs fw-500" style={{ color: 'var(--color-text-primary)', fontFamily: 'monospace' }}>{user.email}</div>
-                    <div style={{ fontSize: '11px', color: 'var(--color-text-muted)' }}>{user.desc}</div>
+                  <div style={{ minWidth: 0 }}>
+                    <div className="text-xs fw-500" style={{ color: 'var(--color-text-primary)', fontFamily: 'monospace', wordBreak: 'break-word' }}>{user.email}</div>
+                    <div style={{ fontSize: '11px', color: 'var(--color-text-muted)', whiteSpace: 'normal' }}>{user.desc}</div>
                   </div>
                 </div>
                 <button
